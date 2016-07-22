@@ -3,7 +3,8 @@ import {Subject} from 'rxjs/Subject';
 
 export class StartMessage {
 	constructor(
-		public peerName: string
+		public peerName: string,
+		public remoteStreamUrl: string
 	) {};
 }
 
@@ -21,6 +22,8 @@ export class NextService {
 	private peerName: string;
 
 	private localStream: MediaStream = null;
+
+	private peerConnection: RTCPeerConnection;
 
 	getUserMedia(): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
@@ -72,12 +75,15 @@ export class NextService {
 			if (message.type == 'start') {
 				this.matchID = message.matchID;
 				this.peerName = message.peerName;
-				this.msgSubject.next(new StartMessage(this.peerName));
+				this.startWebrtcConnection();
 			} else if (message.matchID == this.matchID) {
 				switch (message.type) {
 				case 'end':
 					this.sendNext();
 					this.msgSubject.next(new EndMessage());
+					break;
+				case 'candidate':
+					this.receiveCandidate(message.data);
 					break;
 				}
 			}
@@ -96,5 +102,48 @@ export class NextService {
 			});
 			this.matchID = null;
 		}
+	}
+
+	startWebrtcConnection() {
+		let config: any = {
+			iceServers: [
+				{
+					urls: 'stun:stun.l.google.com:19302',
+				},
+			],
+		};
+		this.peerConnection = new RTCPeerConnection(config);
+
+		this.peerConnection.addStream(this.localStream);
+
+		this.peerConnection.onaddstream = evt => {
+			let remoteStreamUrl = URL.createObjectURL(evt.stream);
+			this.msgSubject.next(new StartMessage(
+				this.peerName,
+				remoteStreamUrl
+			));
+		};
+
+		this.peerConnection.onicecandidate = evt => {
+			if (this.matchID != null) {
+				if (evt.candidate) {
+					this.wsSend({
+						type: 'candidate',
+						matchID: this.matchID,
+						data: evt.candidate,
+					});
+				}
+			}
+		}
+	}
+
+	private receiveCandidate(candidate: RTCIceCandidate) {
+		this.peerConnection.addIceCandidate(
+			candidate,
+			() => {},
+			error => {
+				console.log(error);
+			}
+		);
 	}
 }
