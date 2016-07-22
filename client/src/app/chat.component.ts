@@ -1,5 +1,4 @@
-import {Component, EventEmitter, Input, Output, OnInit, ChangeDetectorRef} from '@angular/core';
-import {DomSanitizationService, SafeUrl} from '@angular/platform-browser';
+import {Component, EventEmitter, Input, Output, OnInit} from '@angular/core';
 import {MdButton} from '@angular2-material/button';
 import {MdProgressBar} from '@angular2-material/progress-bar';
 import {NextService, StartMessage, EndMessage} from './next.service';
@@ -13,28 +12,19 @@ import {NextService, StartMessage, EndMessage} from './next.service';
 export class ChatComponent implements OnInit {
 	@Input() userName: string;
 	@Output() onError = new EventEmitter<string>();
-	localStreamURL: SafeUrl;
-	remoteStreamURL: SafeUrl;
 	peerName: string = null;
 
 	constructor(
-		private nextService: NextService,
-		private changeDetector: ChangeDetectorRef,
-		private sanitizer: DomSanitizationService
+		private nextService: NextService
 	) {}
 
 	ngOnInit() {
-		this.localStreamURL = this.sanitizer.bypassSecurityTrustUrl(this.nextService.getLocalStreamURL());
-		this.setRemoteStreamURL('');
-
 		this.nextService.connect(this.userName);
 
 		this.nextService.msgObservable.subscribe(
 			msg => {
 				if (msg instanceof StartMessage) {
 					this.peerName = msg.peerName;
-					this.setRemoteStreamURL(msg.remoteStreamURL);
-					this.changeDetector.detectChanges();
 				} else if (msg instanceof EndMessage) {
 					this.resetMatch();
 				}
@@ -55,10 +45,5 @@ export class ChatComponent implements OnInit {
 
 	resetMatch() {
 		this.peerName = null;
-		this.setRemoteStreamURL('');
-	}
-
-	private setRemoteStreamURL(url: string) {
-		this.remoteStreamURL = this.sanitizer.bypassSecurityTrustUrl(url);
 	}
 }
