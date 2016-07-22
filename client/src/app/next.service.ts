@@ -40,6 +40,14 @@ export class NextService {
 		});
 	}
 
+	getLocalStreamURL(): string {
+		let url = '';
+		if (this.localStream != null) {
+			url = URL.createObjectURL(this.localStream);
+		}
+		return url;
+	}
+
 	connect(userName: string) {
 		this.websocket = new WebSocket('wss://' + location.host + '/match');
 		this.websocket.onopen = open => {
