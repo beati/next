@@ -20,6 +20,26 @@ export class NextService {
 	private matchID: number = null;
 	private peerName: string;
 
+	private localStream: MediaStream = null;
+
+	getUserMedia(): Promise<void> {
+		return new Promise<void>((resolve, reject) => {
+			navigator.getUserMedia(
+				{
+					audio: true,
+					video: true,
+				},
+				localMediaStream => {
+					this.localStream = localMediaStream;
+					resolve();
+				},
+				error => {
+					reject('Error accessing local media');
+				}
+			);
+		});
+	}
+
 	connect(userName: string) {
 		this.websocket = new WebSocket('wss://' + location.host + '/match');
 		this.websocket.onopen = open => {

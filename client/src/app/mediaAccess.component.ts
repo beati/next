@@ -6,7 +6,7 @@ import {NextService} from './next.service';
 	selector: 'mediaAccess',
 	template:`
 		<div class="container">
-			<md-card (click)="access()">Accessing local media</md-card>
+			<md-card>Accessing local media</md-card>
 		<div>
 	`,
 	styles: [`
@@ -29,9 +29,10 @@ export class MediaAccessComponent implements OnInit {
 	}
 
 	ngOnInit() {
-	}
-
-	access() {
-		this.onAccessed.emit(null);
+		this.nextService.getUserMedia().then(() => {
+			this.onAccessed.emit(null);
+		}).catch(error => {
+			this.onError.emit(error);
+		});
 	}
 }
