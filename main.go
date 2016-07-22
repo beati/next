@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"bitbucket.org/beati/next/match"
+	"github.com/beati/next/match"
 )
 
 func main() {
