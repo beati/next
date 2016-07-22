@@ -24,6 +24,7 @@ export class NextService {
 	private localStream: MediaStream = null;
 
 	private peerConnection: RTCPeerConnection;
+	private offer: boolean;
 
 	getUserMedia(): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
@@ -75,12 +76,16 @@ export class NextService {
 			if (message.type == 'start') {
 				this.matchID = message.matchID;
 				this.peerName = message.peerName;
+				this.offer = message.offer;
 				this.startWebrtcConnection();
 			} else if (message.matchID == this.matchID) {
 				switch (message.type) {
 				case 'end':
 					this.sendNext();
 					this.msgSubject.next(new EndMessage());
+					break;
+				case 'sdp':
+					this.receiveSDP(message.data);
 					break;
 				case 'candidate':
 					this.receiveCandidate(message.data);
@@ -95,6 +100,7 @@ export class NextService {
 	}
 
 	sendNext() {
+		this.peerConnection.close();
 		if (this.matchID != null) {
 			this.wsSend({
 				type: 'next',
@@ -135,6 +141,55 @@ export class NextService {
 				}
 			}
 		}
+
+		if (this.offer) {
+			this.peerConnection.createOffer(
+				sdp => {
+					this.setLocalDescription(sdp);
+				},
+				error => {
+					console.log(error);
+				}
+			);
+		}
+	}
+
+	private receiveSDP(sdp: RTCSessionDescription) {
+		let pc = this.peerConnection;
+		pc.setRemoteDescription(
+			sdp,
+			() => {
+				if (!this.offer) {
+					pc.createAnswer(
+						sdp => {
+							this.setLocalDescription(sdp);
+						},
+						error => {
+							console.log(error);
+						}
+					);
+				}
+			},
+			error => {
+				console.log(error);
+			}
+		);
+	}
+
+	private setLocalDescription(sdp: RTCSessionDescription) {
+		this.peerConnection.setLocalDescription(
+			sdp,
+			() => {
+				this.wsSend({
+					type: 'sdp',
+					matchID: this.matchID,
+					data: sdp,
+				});
+			},
+			error => {
+				console.log(error);
+			}
+		);
 	}
 
 	private receiveCandidate(candidate: RTCIceCandidate) {
