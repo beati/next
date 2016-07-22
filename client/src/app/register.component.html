@@ -1,0 +1,11 @@
+<div class="container">
+	<md-card>
+		<h1>Next</h1>
+		<form (ngSubmit)="register(userName.value)">
+			<md-input #userName placeholder="Name" maxLength="15"></md-input>
+			<div>
+				<button id="register" md-raised-button type="submit" [disabled]="userName.value == ''" color="primary">Start</button>
+			</div>
+		</form>
+	</md-card>
+</div>

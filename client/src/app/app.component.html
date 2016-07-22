@@ -1,0 +1,28 @@
+<div [ngSwitch]="initLevel">
+	<div *ngSwitchCase="'registering'">
+		<register (onRegister)="onRegister($event)"></register>
+	</div>
+
+	<div *ngSwitchCase="'accessing_media'">
+		<mediaAccess (onAccessed)="onAccessed()" (onError)="onError($event)"></mediaAccess>
+	</div>
+
+	<div *ngSwitchCase="'chatting'">
+		<chat [userName]="userName" (onError)="onError($event)"></chat>
+	</div>
+
+	<div *ngSwitchCase="'error'">
+		<div class="container">
+			<md-card>
+				<span class="error-message">{{errorMessage}}</span>
+				<button md-raised-button color="primary" (click)="reload()">Reload</button>
+			</md-card>
+		<div>
+	</div>
+
+	<div *ngSwitchCase="'notsupported'">
+		<div class="container">
+			<md-card>Your browser is not supported</md-card>
+		</div>
+	</div>
+</div>

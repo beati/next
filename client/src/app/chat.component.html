@@ -1,0 +1,25 @@
+<div class="container">
+	<div class="ratio-4-3-container">
+		<video id="remoteVideo" class="fixed-ratio" [src]="remoteStreamURL" autoplay></video>
+	</div>
+	<div class="raw">
+		<div class="col-1-2">
+			<div class="ratio-4-3-container">
+				<video id="localVideo" class="fixed-ratio localVideo" [src]="localStreamURL" autoplay muted></video>
+			</div>
+		</div>
+		<div class="col-1-2">
+			<div [ngSwitch]="peerName">
+				<div *ngSwitchCase="null" class="waiting">
+					<p id="waiting" class="waiting-text">Waiting for peer</p>
+					<md-progress-bar mode="indeterminate"></md-progress-bar>
+				</div>
+
+				<div *ngSwitchDefault>
+					<p id="peerName" class="peer-name">{{peerName}}</p>
+					<button id="next" md-raised-button class="next-button" color="primary" (click)="next()">Next</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

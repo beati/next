@@ -1,0 +1,7 @@
+*.swp
+*.map
+*.pem
+client/dist
+client/node_modules
+client/typings
+test/target
