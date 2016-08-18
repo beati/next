@@ -1,10 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {MdButton} from '@angular2-material/button';
-import {MdCard} from '@angular2-material/card';
-import {NextService} from './next.service';
-import {RegisterComponent} from './register.component';
-import {MediaAccessComponent} from './mediaAccess.component';
-import {ChatComponent} from './chat.component';
 
 declare var adapter: any;
 
@@ -25,8 +19,6 @@ declare var adapter: any;
 		padding-right: 70px;
 		}
 	`],
-	directives: [MdButton, MdCard, RegisterComponent, MediaAccessComponent, ChatComponent],
-	providers: [NextService],
 })
 export class AppComponent implements OnInit {
 	initLevel: string;
@@ -38,9 +30,7 @@ export class AppComponent implements OnInit {
 		switch (adapter.browserDetails.browser) {
 		case 'chrome':
 		case 'firefox':
-			if (adapter.browserDetails.version > adapter.browserDetails.minVersion) {
-				this.initLevel = 'registering';
-			}
+			this.initLevel = 'registering';
 			break;
 		}
 	}

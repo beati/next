@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Output, OnInit} from '@angular/core';
-import {MdCard} from '@angular2-material/card';
 import {NextService} from './next.service';
 
 @Component({
@@ -19,7 +18,6 @@ import {NextService} from './next.service';
 		margin-top: 200px;
 		}
 	`],
-	directives: [MdCard],
 })
 export class MediaAccessComponent implements OnInit {
 	@Output() onAccessed = new EventEmitter<void>();

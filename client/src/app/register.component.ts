@@ -1,7 +1,4 @@
 import {Component, EventEmitter, Output} from '@angular/core';
-import {MdButton} from '@angular2-material/button';
-import {MdInput} from '@angular2-material/input';
-import {MdCard} from '@angular2-material/card';
 
 @Component({
 	selector: 'register',
@@ -16,7 +13,6 @@ import {MdCard} from '@angular2-material/card';
 		margin-top: 50px;
 		}
 	`],
-	directives: [MdButton, MdInput, MdCard],
 })
 export class RegisterComponent {
 	@Output() onRegister = new EventEmitter<string>();

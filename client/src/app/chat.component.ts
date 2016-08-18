@@ -1,14 +1,11 @@
 import {Component, EventEmitter, Input, Output, OnInit, ChangeDetectorRef} from '@angular/core';
 import {DomSanitizationService, SafeUrl} from '@angular/platform-browser';
-import {MdButton} from '@angular2-material/button';
-import {MdProgressBar} from '@angular2-material/progress-bar';
 import {NextService, StartMessage, EndMessage} from './next.service';
 
 @Component({
 	selector: 'chat',
 	template: require('./chat.component.html'),
 	styles: [require('./chat.component.css')],
-	directives: [MdButton, MdProgressBar],
 })
 export class ChatComponent implements OnInit {
 	@Input() userName: string;
