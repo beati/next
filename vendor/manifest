@@ -1,0 +1,32 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/fsnotify/fsnotify",
+			"repository": "https://github.com/fsnotify/fsnotify",
+			"vcs": "git",
+			"revision": "f12c6236fe7b5cf6bcf30e5935d08cb079d78334",
+			"branch": "master",
+			"notests": true,
+			"allfiles": true
+		},
+		{
+			"importpath": "github.com/gorilla/websocket",
+			"repository": "https://github.com/gorilla/websocket",
+			"vcs": "git",
+			"revision": "a69d25be2fe2923a97c2af6849b2f52426f68fc0",
+			"branch": "master",
+			"notests": true,
+			"allfiles": true
+		},
+		{
+			"importpath": "golang.org/x/sys",
+			"repository": "https://go.googlesource.com/sys",
+			"vcs": "git",
+			"revision": "a646d33e2ee3172a661fc09bca23bb4889a41bc8",
+			"branch": "master",
+			"notests": true,
+			"allfiles": true
+		}
+	]
+}
