@@ -28,7 +28,7 @@ import {ChatComponent} from './chat.component';
 		AppComponent,
 		RegisterComponent,
 		MediaAccessComponent,
-		ChatComponent
+		ChatComponent,
 	],
 	bootstrap: [AppComponent],
 	providers: [NextService],

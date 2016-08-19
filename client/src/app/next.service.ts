@@ -145,6 +145,10 @@ export class NextService {
 		}
 		this.peerConnection = new RTCPeerConnection(config);
 
+		this.peerConnection.oniceconnectionstatechange = evt => {
+			console.log(this.peerConnection.iceConnectionState);
+		};
+
 		this.peerConnection.onaddstream = evt => {
 			this.remoteStream = evt.stream;
 			let remoteStreamURL = URL.createObjectURL(this.remoteStream);
