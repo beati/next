@@ -23,13 +23,14 @@ export class MediaAccessComponent implements OnInit {
 	@Output() onAccessed = new EventEmitter<void>();
 	@Output() onError = new EventEmitter<string>();
 
-	constructor(private nextService: NextService) {
-	}
+	constructor(private nextService: NextService) {}
 
 	ngOnInit() {
-		this.nextService.getUserMedia().then(() => {
+		this.nextService.getUserMedia()
+		.then(() => {
 			this.onAccessed.emit(null);
-		}).catch(error => {
+		})
+		.catch(error => {
 			this.onError.emit(error);
 		});
 	}

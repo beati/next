@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
 
 declare var adapter: any;
 
@@ -25,6 +25,8 @@ export class AppComponent implements OnInit {
 	errorMessage = '';
 	userName: string;
 
+	constructor(private changeDetector: ChangeDetectorRef) {}
+
 	ngOnInit() {
 		this.initLevel = 'notsupported';
 		switch (adapter.browserDetails.browser) {
@@ -42,11 +44,13 @@ export class AppComponent implements OnInit {
 
 	onAccessed() {
 		this.initLevel = 'chatting';
+		this.changeDetector.detectChanges();
 	}
 
 	onError(errorMessage: string) {
 		this.errorMessage = errorMessage;
 		this.initLevel = 'error';
+		this.changeDetector.detectChanges();
 	}
 
 	reload() {

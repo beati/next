@@ -14,47 +14,42 @@ export class EndMessage {
 
 @Injectable()
 export class NextService {
-	private localStream: MediaStream = null;
-
 	private websocket: WebSocket;
 	private msgSubject = new Subject<StartMessage | EndMessage>();
 	msgObservable = this.msgSubject.asObservable();
 
 	private matchID: number = null;
 	private peerName: string;
-	private offer: boolean;
+
+	private localStream: MediaStream = null;
 
 	private peerConnection: RTCPeerConnection;
-	private remoteStream: MediaStream = null;
+	private offer: boolean;
 
 	getUserMedia(): Promise<void> {
-		return new Promise<void>((resolve, reject) => {
-			navigator.getUserMedia(
-				{
-					audio: true,
-					video: true,
-				},
-				localMediaStream => {
-					this.localStream = localMediaStream;
-					resolve();
-				},
-				error => {
-					let errorMessage = '';
-					switch (error.name) {
-					case 'NotAllowedError':
-						errorMessage = 'Access to media refused';
-						break;
-					case 'DevicesNotFoundError':
-					case 'NotFoundError':
-						errorMessage = 'No media device found';
-						break;
-					case 'SourceUnavailableError':
-						errorMessage = 'Media devices allready in use';
-						break;
-					}
-					reject(errorMessage);
-				}
-			);
+		return navigator.mediaDevices.getUserMedia({
+			audio: true,
+			video: true,
+		})
+		.then(stream => {
+			this.localStream = stream;
+		})
+		.catch(error => {
+			let errorMessage = '';
+			console.log(error.name);
+			switch (error.name) {
+			case 'NotAllowedError':
+				errorMessage = 'Access to media refused';
+				break;
+			case 'DevicesNotFoundError':
+			case 'NotFoundError':
+				errorMessage = 'No media device found';
+				break;
+			case 'SourceUnavailableError':
+				errorMessage = 'Media devices allready in use';
+				break;
+			}
+			throw errorMessage;
 		});
 	}
 
@@ -129,7 +124,7 @@ export class NextService {
 	}
 
 	private startWebrtcConnection(turnUsername: string, turnPassword: string) {
-		let config: any = {
+		let config: RTCConfiguration = {
 			iceServers: [
 				{
 					urls: 'stun:stun.l.google.com:19302',
@@ -150,8 +145,7 @@ export class NextService {
 		};
 
 		this.peerConnection.onaddstream = evt => {
-			this.remoteStream = evt.stream;
-			let remoteStreamURL = URL.createObjectURL(this.remoteStream);
+			let remoteStreamURL = URL.createObjectURL(evt.stream);
 			this.msgSubject.next(new StartMessage(
 				this.peerName,
 				remoteStreamURL
@@ -171,63 +165,47 @@ export class NextService {
 		};
 
 		this.peerConnection.addStream(this.localStream);
+
 		if (this.offer) {
-			this.peerConnection.createOffer(
-				sdp => {
-					this.setLocalDescription(sdp);
-				},
-				error => {
-					console.log(error);
-				}
-			);
+			let sdpOffer = this.peerConnection.createOffer()
+			this.sendSDP(sdpOffer);
 		}
 	}
 
-	private receiveSDP(sdp: RTCSessionDescription) {
-		let pc = this.peerConnection;
-		pc.setRemoteDescription(
-			sdp,
-			() => {
-				if (!this.offer) {
-					pc.createAnswer(
-						sdp => {
-							this.setLocalDescription(sdp);
-						},
-						error => {
-							console.log(error);
-						}
-					);
-				}
-			},
-			error => {
-			}
-		);
+	private sendSDP(sdp: Promise<RTCSessionDescription>) {
+		sdp
+		.then(sdp => {
+			return this.peerConnection.setLocalDescription(sdp);
+		})
+		.then(() => {
+			this.wsSend({
+				type: 'sdp',
+				matchID: this.matchID,
+				data: this.peerConnection.localDescription,
+			});
+		})
+		.catch(error => {
+			console.log();
+		});
 	}
 
-	private setLocalDescription(sdp: RTCSessionDescription) {
-		this.peerConnection.setLocalDescription(
-			sdp,
-			() => {
-				this.wsSend({
-					type: 'sdp',
-					matchID: this.matchID,
-					data: sdp,
-				});
-			},
-			error => {
-				console.log(error);
+	private receiveSDP(sdp: RTCSessionDescription) {
+		this.peerConnection.setRemoteDescription(sdp)
+		.then(() => {
+			if (!this.offer) {
+				let sdpAnswer = this.peerConnection.createAnswer();
+				this.sendSDP(sdpAnswer);
 			}
-		);
+		})
+		.catch(error => {
+			console.log(error);
+		});
 	}
 
 	private receiveCandidate(candidate: RTCIceCandidate) {
-		let pc = this.peerConnection;
-		pc.addIceCandidate(
-			candidate,
-			() => {},
-			error => {
-				console.log(error);
-			}
-		);
+		this.peerConnection.addIceCandidate(candidate)
+		.catch(error => {
+			console.log(error);
+		});
 	}
 }
