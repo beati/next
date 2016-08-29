@@ -79,8 +79,7 @@ export class NextService {
 			try {
 				message = JSON.parse(messageEvent.data);
 			} catch (e) {
-				this.sendNext();
-				this.msgSubject.next(new EndMessage());
+				this.endMatch();
 			}
 			if (message.type == 'start') {
 				this.matchID = message.matchID;
@@ -94,8 +93,7 @@ export class NextService {
 			} else if (message.matchID == this.matchID) {
 				switch (message.type) {
 				case 'end':
-					this.sendNext();
-					this.msgSubject.next(new EndMessage());
+					this.endMatch();
 					break;
 				case 'sdp':
 					this.receiveSDP(message.data);
@@ -123,6 +121,11 @@ export class NextService {
 		}
 	}
 
+	endMatch() {
+		this.sendNext();
+		this.msgSubject.next(new EndMessage());
+	}
+
 	private startWebrtcConnection(turnUsername: string, turnPassword: string) {
 		let config: RTCConfiguration = {
 			iceServers: [
@@ -141,7 +144,9 @@ export class NextService {
 		this.peerConnection = new RTCPeerConnection(config);
 
 		this.peerConnection.oniceconnectionstatechange = evt => {
-			console.log(this.peerConnection.iceConnectionState);
+			if (this.peerConnection.iceConnectionState == 'failed') {
+				this.endMatch();
+			}
 		};
 
 		this.peerConnection.onaddstream = evt => {
@@ -185,7 +190,7 @@ export class NextService {
 			});
 		})
 		.catch(error => {
-			console.log();
+			this.endMatch();
 		});
 	}
 
@@ -198,14 +203,14 @@ export class NextService {
 			}
 		})
 		.catch(error => {
-			console.log(error);
+			this.endMatch();
 		});
 	}
 
 	private receiveCandidate(candidate: RTCIceCandidate) {
 		this.peerConnection.addIceCandidate(candidate)
 		.catch(error => {
-			console.log(error);
+			this.endMatch();
 		});
 	}
 }

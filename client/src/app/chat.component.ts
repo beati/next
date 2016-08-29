@@ -31,10 +31,10 @@ export class ChatComponent implements OnInit {
 				if (msg instanceof StartMessage) {
 					this.peerName = msg.peerName;
 					this.setRemoteStreamURL(msg.remoteStreamURL);
-					this.changeDetector.detectChanges();
 				} else if (msg instanceof EndMessage) {
 					this.resetMatch();
 				}
+				this.changeDetector.detectChanges();
 			},
 			error => {
 				this.onError.emit('An error occured with WebSocket connection');
