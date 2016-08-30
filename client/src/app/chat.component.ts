@@ -10,8 +10,6 @@ import {NextService, StartMessage, EndMessage} from './next.service';
 export class ChatComponent implements OnInit {
 	@Input() userName: string;
 	@Output() onError = new EventEmitter<string>();
-	localStreamURL: SafeUrl;
-	remoteStreamURL: SafeUrl;
 	peerName: string = null;
 
 	constructor(
@@ -21,16 +19,12 @@ export class ChatComponent implements OnInit {
 	) {}
 
 	ngOnInit() {
-		this.localStreamURL = this.sanitizer.bypassSecurityTrustUrl(this.nextService.getLocalStreamURL());
-		this.setRemoteStreamURL('');
-
 		this.nextService.connect(this.userName);
 
 		this.nextService.msgObservable.subscribe(
 			msg => {
 				if (msg instanceof StartMessage) {
 					this.peerName = msg.peerName;
-					this.setRemoteStreamURL(msg.remoteStreamURL);
 				} else if (msg instanceof EndMessage) {
 					this.resetMatch();
 				}
@@ -52,10 +46,5 @@ export class ChatComponent implements OnInit {
 
 	resetMatch() {
 		this.peerName = null;
-		this.setRemoteStreamURL('');
-	}
-
-	private setRemoteStreamURL(url: string) {
-		this.remoteStreamURL = this.sanitizer.bypassSecurityTrustUrl(url);
 	}
 }
