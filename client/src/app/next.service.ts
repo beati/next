@@ -68,7 +68,7 @@ export class NextService {
 		}
 	}
 
-	endMatch() {
+	private endMatch() {
 		this.sendNext();
 		this.msgSubject.next(new EndMessage());
 	}
