@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, Output, OnInit, ChangeDetectorRef} from '@angular/core';
-import {DomSanitizationService, SafeUrl} from '@angular/platform-browser';
+import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 import {NextService, StartMessage, EndMessage} from './next.service';
 
 @Component({
@@ -15,7 +15,7 @@ export class ChatComponent implements OnInit {
 	constructor(
 		private nextService: NextService,
 		private changeDetector: ChangeDetectorRef,
-		private sanitizer: DomSanitizationService
+		private sanitizer: DomSanitizer
 	) {}
 
 	ngOnInit() {
