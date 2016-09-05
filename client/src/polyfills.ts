@@ -1,5 +1,5 @@
 import 'core-js/es6';
-import 'reflect-metadata';
+import 'core-js/es7/reflect';
 import 'webrtc-adapter/out/adapter';
 require('zone.js/dist/zone');
 
